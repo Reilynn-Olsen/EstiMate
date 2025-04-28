@@ -46,7 +46,7 @@ export default function Home() {
             <Image
               width={500}
               height={1000}
-              src="/images/quote-preview.png"
+              src="/quote.png"
               alt="Quote preview"
               className="rounded-2xl shadow-xl"
             />
