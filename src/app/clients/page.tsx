@@ -1,15 +1,18 @@
 import Link from "next/link";
+import { getClientsForUser } from "../lib/db/client";
 
-const mockClients = [
-  { id: 1, name: "Jane Doe", email: "jane@example.com", company: "Acme Co." },
-  { id: 2, name: "John Smith", email: "john@smith.io", company: "Smith & Co." },
-];
+export default async function ClientsPage() {
+  const clients = await getClientsForUser();
 
-export default function ClientsPage() {
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-10">
       <div className="max-w-5xl mx-auto">
         <div className="flex justify-between items-center mb-8">
+          <Link href="/dashboard" passHref>
+            <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">
+              &larr; Back
+            </button>
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900">Clients</h1>
           <Link href="/clients/new">
             <button className="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700">
@@ -35,7 +38,7 @@ export default function ClientsPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {mockClients.map((client) => (
+              {clients.map((client) => (
                 <tr key={client.id}>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                     {client.name}

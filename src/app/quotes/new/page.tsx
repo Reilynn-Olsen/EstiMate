@@ -1,11 +1,23 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { redirect } from "next/navigation";
 
 export default function NewQuote() {
-  const [clientName, setClientName] = useState("");
+  const [clients, setClients] = useState<{ id: string; name: string }[]>([]);
+  const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [items, setItems] = useState([
     { description: "", quantity: 1, rate: 0 },
   ]);
+
+  useEffect(() => {
+    const fetchClients = async () => {
+      const res = await fetch("/api/clients");
+      const data = await res.json();
+      setClients(data.clients);
+    };
+
+    fetchClients();
+  }, []);
 
   const handleItemChange = (
     index: number,
@@ -25,10 +37,32 @@ export default function NewQuote() {
       .reduce((total, item) => total + item.quantity * item.rate, 0)
       .toFixed(2);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Saving quote:", { clientName, items });
-    // Post to API route later
+    if (!selectedClientId) {
+      alert("Please select a client.");
+      return;
+    }
+
+    const quoteData = {
+      clientId: selectedClientId,
+      items: items,
+      total: calculateTotal(),
+    };
+
+    const res = await fetch("/api/quotes", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(quoteData),
+    });
+
+    if (res.ok) {
+      redirect("/quotes");
+    } else {
+      alert("Failed to save quote");
+    }
   };
 
   return (
@@ -37,21 +71,25 @@ export default function NewQuote() {
         <h1 className="text-2xl font-bold text-gray-800 mb-6">New Quote</h1>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Client Info */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-2">
-              Client Name
+              Client
             </label>
-            <input
-              type="text"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
-              value={clientName}
-              onChange={(e) => setClientName(e.target.value)}
+            <select
+              className="w-full border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
+              value={selectedClientId ?? ""}
+              onChange={(e) => setSelectedClientId(e.target.value)}
               required
-            />
+            >
+              <option value="">Select a client</option>
+              {clients.map((client, index) => (
+                <option key={index} value={client.id}>
+                  {client.name}
+                </option>
+              ))}
+            </select>
           </div>
 
-          {/* Line Items */}
           <div>
             <h2 className="text-lg font-semibold text-gray-700 mb-4">
               Services
@@ -59,7 +97,7 @@ export default function NewQuote() {
             {items.map((item, index) => (
               <div key={index} className="grid grid-cols-12 gap-4 mb-4">
                 <input
-                  className="col-span-6 border border-gray-300 rounded-lg px-4 py-2"
+                  className="col-span-6 border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
                   placeholder="Service description"
                   value={item.description}
                   onChange={(e) =>
@@ -68,7 +106,7 @@ export default function NewQuote() {
                   required
                 />
                 <input
-                  className="col-span-2 border border-gray-300 rounded-lg px-4 py-2"
+                  className="col-span-2 border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
                   type="number"
                   placeholder="Qty"
                   value={item.quantity}
@@ -82,7 +120,7 @@ export default function NewQuote() {
                   required
                 />
                 <input
-                  className="col-span-2 border border-gray-300 rounded-lg px-4 py-2"
+                  className="col-span-2 border border-gray-300 rounded-lg px-4 py-2 text-gray-700"
                   type="number"
                   placeholder="Rate"
                   value={item.rate}
@@ -102,7 +140,6 @@ export default function NewQuote() {
             </button>
           </div>
 
-          {/* Total + Submit */}
           <div className="flex justify-between items-center pt-6 border-t border-gray-200">
             <p className="text-xl font-semibold text-gray-800">
               Total:{" "}

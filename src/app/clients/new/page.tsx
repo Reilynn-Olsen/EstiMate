@@ -19,11 +19,25 @@ export default function NewClient() {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Submitting client:", formData);
-    // Post to API later
-    router.push("/clients");
+    try {
+      const res = await fetch("/api/clients", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) {
+        throw new Error("Failed to create client");
+      }
+
+      router.push("/clients");
+    } catch (error) {
+      console.error("Error creating client:", error);
+    }
   };
 
   return (
@@ -41,7 +55,7 @@ export default function NewClient() {
             <input
               type="text"
               name="name"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              className="w-full border border-gray-300 text-gray-700 rounded-lg px-4 py-2"
               value={formData.name}
               onChange={handleChange}
               required
@@ -55,7 +69,7 @@ export default function NewClient() {
             <input
               type="email"
               name="email"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              className="w-full border border-gray-300 text-gray-700 rounded-lg px-4 py-2"
               value={formData.email}
               onChange={handleChange}
               required
@@ -69,7 +83,7 @@ export default function NewClient() {
             <input
               type="text"
               name="company"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              className="w-full border border-gray-300 text-gray-700 rounded-lg px-4 py-2"
               value={formData.company}
               onChange={handleChange}
             />
@@ -82,7 +96,7 @@ export default function NewClient() {
             <input
               type="text"
               name="phone"
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              className="w-full border border-gray-300 text-gray-700 rounded-lg px-4 py-2"
               value={formData.phone}
               onChange={handleChange}
             />
@@ -95,7 +109,7 @@ export default function NewClient() {
             <textarea
               name="notes"
               rows={3}
-              className="w-full border border-gray-300 rounded-lg px-4 py-2"
+              className="w-full border border-gray-300 text-gray-700 rounded-lg px-4 py-2"
               placeholder="Internal notes, preferred contact method, etc."
               value={formData.notes}
               onChange={handleChange}

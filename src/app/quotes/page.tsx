@@ -1,28 +1,5 @@
 import Link from "next/link";
-
-const mockQuotes = [
-  {
-    id: 101,
-    client: "Jane Doe",
-    total: 1200,
-    status: "Draft",
-    date: "2025-04-24",
-  },
-  {
-    id: 102,
-    client: "John Smith",
-    total: 750,
-    status: "Sent",
-    date: "2025-04-23",
-  },
-  {
-    id: 103,
-    client: "Acme Corp",
-    total: 3400,
-    status: "Accepted",
-    date: "2025-04-21",
-  },
-];
+import { getQuotes } from "../lib/db/quotes";
 
 const statusColors: Record<string, string> = {
   Draft: "bg-yellow-100 text-yellow-800",
@@ -30,11 +7,17 @@ const statusColors: Record<string, string> = {
   Accepted: "bg-green-100 text-green-800",
 };
 
-export default function QuotesPage() {
+export default async function QuotesPage() {
+  const quotes = await getQuotes();
   return (
     <div className="min-h-screen bg-gray-50 px-6 py-10">
       <div className="max-w-6xl mx-auto">
         <div className="flex justify-between items-center mb-8">
+          <Link href="/dashboard" passHref>
+            <button className="bg-gray-200 text-gray-800 px-4 py-2 rounded-lg hover:bg-gray-300">
+              &larr; Back
+            </button>
+          </Link>
           <h1 className="text-3xl font-bold text-gray-900">Quotes</h1>
           <Link href="/quotes/new">
             <button className="bg-indigo-600 text-white px-5 py-2 rounded-xl hover:bg-indigo-700">
@@ -56,9 +39,6 @@ export default function QuotesPage() {
             <thead className="bg-gray-100">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Quote #
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Client
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
@@ -74,16 +54,13 @@ export default function QuotesPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
-              {mockQuotes.map((quote) => (
+              {quotes.map((quote) => (
                 <tr key={quote.id}>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
-                    #{quote.id}
-                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {quote.client}
+                    {quote.clientName}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                    {quote.date}
+                    {quote.date.toDateString()}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-800">
                     ${quote.total.toFixed(2)}

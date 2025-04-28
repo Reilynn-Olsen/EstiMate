@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String   @id @default(cuid())
+  name            String?
+  email           String   @unique
+  password        String
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  clients         Client[]
+  companyName     String?
+  logoUrl         String?
+  defaultCurrency String   @default("usd")
+  Quote           Quote[]
+
+  @@map("users")
+}
+
+model Client {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  company   String
+  phone     String?
+  notes     String?
+  createdAt DateTime @default(now())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  quotes    Quote[]
+
+  @@map("clients")
+}
+
+model Quote {
+  id        String      @id @default(cuid())
+  userId    String      
+  total     Float
+  status    String // "Draft", "Sent", "Accepted"
+  createdAt DateTime    @default(now())
+  clientId  String
+  client    Client      @relation(fields: [clientId], references: [id])
+  user      User      @relation(fields: [userId], references: [id])
+  items     QuoteItem[]
+
+  @@map("quotes")
+}
+
+model QuoteItem {
+  id          String @id @default(cuid())
+  description String
+  quantity    Int
+  rate        Float
+  quoteId     String
+  quote       Quote  @relation(fields: [quoteId], references: [id])
+
+  @@map("quoteitems")
+}

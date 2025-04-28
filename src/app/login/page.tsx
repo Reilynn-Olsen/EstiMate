@@ -1,16 +1,28 @@
 "use client";
 import { useState } from "react";
+import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function LoginPage() {
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Logging in with", email, password);
-    // TODO: Handle auth logic
-  };
+    const res = await signIn("credentials", {
+      email,
+      password,
+      redirect: false,
+    });
 
+    if (res?.ok) {
+      router.push("/dashboard");
+    } else {
+      setError("Invalid email or password");
+    }
+  };
   return (
     <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4 py-12">
       <div className="max-w-md w-full bg-white shadow-xl rounded-2xl p-8 space-y-8">
@@ -40,7 +52,7 @@ export default function LoginPage() {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-1"
+                className="w-full px-4 py-2 border text-gray-700 border-gray-300 rounded-lg mt-1"
               />
             </div>
 
@@ -59,22 +71,18 @@ export default function LoginPage() {
                 required
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-1"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg mt-1 text-gray-700"
               />
             </div>
           </div>
 
-          {/* Error message placeholder */}
-          {/* <p className="text-sm text-red-600 mt-2">Invalid email or password.</p> */}
+          <p className="text-sm text-red-600 mt-2">{error}</p>
 
           <div className="flex justify-between items-center text-sm">
             <label className="flex items-center text-gray-700">
               <input type="checkbox" className="mr-2" />
               Remember me
             </label>
-            <a href="#" className="text-indigo-600 hover:underline">
-              Forgot password?
-            </a>
           </div>
 
           <button
@@ -86,7 +94,7 @@ export default function LoginPage() {
         </form>
 
         <p className="text-center text-sm text-gray-500">
-          Don’t have an account?{" "}
+          Don’t have an account?
           <a href="/register" className="text-indigo-600 hover:underline">
             Create one
           </a>
