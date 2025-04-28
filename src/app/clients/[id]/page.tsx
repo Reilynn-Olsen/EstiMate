@@ -4,7 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 interface ClientPageProps {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 export default async function ClientPage({ params }: ClientPageProps) {

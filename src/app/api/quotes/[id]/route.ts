@@ -2,14 +2,14 @@ import { prisma } from "@/app/lib/prisma";
 import type { QuoteItem } from "@prisma/client";
 import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
-import { authOptions } from "../../auth/[...nextauth]/route";
+import { authOptions } from "@/app/lib/auth/options";
 import { revalidatePath } from "next/cache";
 
 export async function GET(
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const session = await getServerSession(authOptions);
@@ -38,9 +38,9 @@ export async function GET(
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = params;
+  const { id } = await params;
   const { clientId, items, status } = await req.json();
 
   try {
@@ -122,9 +122,9 @@ export async function PATCH(
 
 export async function DELETE(
   _req: Request,
-  { params }: { params: { id: string } },
+  { params }: { params: Promise<{ id: string }> },
 ) {
-  const { id } = params;
+  const { id } = await params;
 
   try {
     const session = await getServerSession(authOptions);
