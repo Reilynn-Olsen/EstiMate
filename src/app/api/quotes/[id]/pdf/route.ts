@@ -3,6 +3,7 @@ import { NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/app/lib/auth/options";
 import { PDFDocument, StandardFonts, rgb } from "pdf-lib";
+import type { QuoteItem } from "@prisma/client";
 
 export async function GET(
   _req: Request,
@@ -141,7 +142,7 @@ export async function GET(
     page.drawText("Total", { x: margin + 400, y: yPosition, font, size: 12 });
     yPosition -= 20;
 
-    quote.items.forEach((item) => {
+    quote.items.forEach((item: QuoteItem) => {
       if (yPosition < 50) {
         addNewPage();
       }
